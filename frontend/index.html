@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Management Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+
+      <!-- ══ AUTH PANEL ══════════════════════════════════════════ -->
+      <section class="auth-panel" id="authPanel">
+        <div class="brand-block">
+          <p class="eyebrow">✦ Management Tool</p>
+          <h1>Project &amp; task<br><span class="brand-gradient">workspace</span></h1>
+          <p class="lede">Sign in to track assigned work, create projects, and update task progress.</p>
+        </div>
+
+        <div class="auth-card">
+          <div class="tabs" role="tablist" aria-label="Authentication">
+            <button class="tab active" type="button" data-auth-tab="login">Login</button>
+            <button class="tab" type="button" data-auth-tab="signup">Sign up</button>
+          </div>
+
+          <!-- Login form -->
+          <form class="form active" id="loginForm">
+            <label>
+              Email
+              <input type="email" name="email" autocomplete="email" required />
+            </label>
+            <label>
+              Password
+              <input type="password" name="password" autocomplete="current-password" required />
+            </label>
+            <button class="primary-btn" type="submit">Login</button>
+          </form>
+
+          <!-- Sign-up form (two-step) -->
+          <form class="form" id="signupForm">
+            <!-- Step 1: Role picker -->
+            <div class="role-picker" id="rolePicker">
+              <p class="role-picker-label">I am joining as a…</p>
+              <div class="role-cards">
+                <button type="button" class="role-card" id="roleManager" data-role="manager">
+                  <span class="role-icon">🏢</span>
+                  <strong>Manager</strong>
+                  <span class="role-desc">Create projects &amp; assign tasks</span>
+                </button>
+                <button type="button" class="role-card" id="roleEmployee" data-role="employee">
+                  <span class="role-icon">👤</span>
+                  <strong>Employee</strong>
+                  <span class="role-desc">View &amp; update your assigned tasks</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 2: Account details -->
+            <div class="signup-fields hidden" id="signupFields">
+              <button type="button" class="back-btn" id="roleBackBtn">← Change role</button>
+              <div class="selected-role-badge" id="selectedRoleBadge"></div>
+              <input type="hidden" name="role" id="roleInput" />
+              <label>
+                Name
+                <input type="text" name="name" autocomplete="name" required />
+              </label>
+              <label>
+                Email
+                <input type="email" name="email" autocomplete="email" required />
+              </label>
+              <label>
+                Password
+                <input type="password" name="password" autocomplete="new-password" minlength="6" required />
+              </label>
+              <button class="primary-btn" type="submit">Create account</button>
+            </div>
+          </form>
+
+          <p class="message" id="authMessage" role="status"></p>
+        </div>
+      </section>
+
+      <!-- ══ REGULAR DASHBOARD (Manager / Employee) ═════════════ -->
+      <section class="dashboard hidden" id="dashboardPanel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="userRoleBadge">Dashboard</p>
+            <h1 id="welcomeTitle">Management Tool</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="notif-wrapper">
+              <button class="notif-btn" id="notifBtn" aria-label="Notifications">
+                🔔 <span class="notif-badge hidden" id="notifBadge">0</span>
+              </button>
+              <div class="notif-dropdown hidden" id="notifDropdown">
+                <div class="notif-header">
+                  <h4>Notifications</h4>
+                  <button class="ghost-btn-sm" id="markAllReadBtn">Mark all read</button>
+                </div>
+                <div class="notif-list" id="notifList"></div>
+              </div>
+            </div>
+            <button class="ghost-btn" id="logoutBtn" type="button">Logout</button>
+          </div>
+        </header>
+
+        <section class="stats-grid" id="statsGrid" aria-label="Task statistics">
+          <article class="stat-card">
+            <span>Total</span>
+            <strong id="totalTasks">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>Todo</span>
+            <strong id="todoTasks">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>In progress</span>
+            <strong id="progressTasks">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>Done</span>
+            <strong id="doneTasks">0</strong>
+          </article>
+          <article class="stat-card danger">
+            <span>Overdue</span>
+            <strong id="overdueTasks">0</strong>
+          </article>
+        </section>
+
+        <!-- Analytics Charts -->
+        <section class="analytics-section">
+          <div class="chart-box">
+            <canvas id="statusChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <canvas id="priorityChart"></canvas>
+          </div>
+        </section>
+
+        <section class="workspace">
+          <div class="panel">
+            <div class="panel-heading">
+              <h2>Projects</h2>
+              <button class="secondary-btn" id="refreshProjectsBtn" type="button">Refresh</button>
+            </div>
+            <form class="inline-form" id="projectForm">
+              <input type="text" name="name" placeholder="Project name" required />
+              <input type="text" name="description" placeholder="Description" />
+              <button class="primary-btn" type="submit">Add project</button>
+            </form>
+            <div class="list" id="projectList"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-heading">
+              <h2>Add Task</h2>
+            </div>
+            <form class="task-form" id="taskForm">
+              <input type="text" name="title" placeholder="Task title" minlength="3" maxlength="100" required />
+              <textarea name="description" placeholder="Description" maxlength="500"></textarea>
+              <div class="form-row">
+                <select name="priority" aria-label="Priority">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
+                <input type="datetime-local" name="due_date" aria-label="Due date" />
+              </div>
+              <div class="form-row">
+                <select name="project_id" id="taskProjectSelect" required aria-label="Project"></select>
+                <input type="number" name="assigned_to" id="assignedToInput" min="1" placeholder="Assignee ID" required />
+              </div>
+              <div class="ai-suggest-bar">
+                <button type="button" class="ai-suggest-btn" id="taskAiSuggestBtn">🤖 AI Suggest Member</button>
+              </div>
+              <div class="ai-suggest-panel hidden" id="taskAiSuggestPanel"></div>
+              <button class="primary-btn" type="submit">Add task</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Kanban Board -->
+        <section class="kanban-section">
+          <div class="kanban-toolbar">
+            <div class="kanban-title-group">
+              <h2 class="kanban-title">📋 Task Board</h2>
+              <div class="kanban-tabs hidden" id="kanbanTabs">
+                <button class="kanban-tab active" data-view="my">My Tasks</button>
+                <button class="kanban-tab" data-view="team">Team Tasks</button>
+              </div>
+            </div>
+            <button class="secondary-btn" id="refreshTasksBtn" type="button">↻ Refresh</button>
+          </div>
+          <div class="kanban-board" id="kanbanBoard">
+            <div class="kanban-column" data-status="todo" id="col-todo">
+              <div class="kanban-col-header">
+                <span class="col-dot dot-todo"></span>
+                <span class="col-label">To Do</span>
+                <span class="col-count" id="count-todo">0</span>
+              </div>
+              <div class="kanban-cards" id="cards-todo"></div>
+            </div>
+            <div class="kanban-column" data-status="in_progress" id="col-in_progress">
+              <div class="kanban-col-header">
+                <span class="col-dot dot-progress"></span>
+                <span class="col-label">In Progress</span>
+                <span class="col-count" id="count-in_progress">0</span>
+              </div>
+              <div class="kanban-cards" id="cards-in_progress"></div>
+            </div>
+            <div class="kanban-column" data-status="done" id="col-done">
+              <div class="kanban-col-header">
+                <span class="col-dot dot-done"></span>
+                <span class="col-label">Done</span>
+                <span class="col-count" id="count-done">0</span>
+              </div>
+              <div class="kanban-cards" id="cards-done"></div>
+            </div>
+            <div class="kanban-column" data-status="on_hold" id="col-on_hold">
+              <div class="kanban-col-header">
+                <span class="col-dot dot-hold"></span>
+                <span class="col-label">On Hold</span>
+                <span class="col-count" id="count-on_hold">0</span>
+              </div>
+              <div class="kanban-cards" id="cards-on_hold"></div>
+            </div>
+          </div>
+        </section>
+
+        <p class="message" id="appMessage" role="status"></p>
+      </section>
+
+      <!-- ══ ADMIN PANEL ════════════════════════════════════════ -->
+      <section class="dashboard hidden" id="adminPanel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow admin-eyebrow">⚙️ Admin</p>
+            <h1>Admin Dashboard</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="notif-wrapper">
+              <button class="notif-btn" id="adminNotifBtn" aria-label="Notifications">
+                🔔 <span class="notif-badge hidden" id="adminNotifBadge">0</span>
+              </button>
+              <div class="notif-dropdown hidden" id="adminNotifDropdown">
+                <div class="notif-header">
+                  <h4>Notifications</h4>
+                  <button class="ghost-btn-sm" id="adminMarkAllReadBtn">Mark all read</button>
+                </div>
+                <div class="notif-list" id="adminNotifList"></div>
+              </div>
+            </div>
+            <button class="ghost-btn" id="adminLogoutBtn" type="button">Logout</button>
+          </div>
+        </header>
+
+        <div class="admin-toolbar">
+          <button class="primary-btn" id="adminRefreshBtn" type="button">↻ Refresh</button>
+          <p class="message" id="adminMessage" role="status"></p>
+        </div>
+
+        <!-- Admin Analytics Charts -->
+        <section class="analytics-section">
+          <div class="chart-box">
+            <canvas id="adminStatusChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <canvas id="adminPriorityChart"></canvas>
+          </div>
+        </section>
+
+        <section class="admin-grid" id="adminEmployeeGrid">
+          <p class="empty" id="adminEmpty">Loading employees…</p>
+        </section>
+      </section>
+
+    </main>
+
+    <!-- ══ CUSTOM MODAL (replaces browser prompt) ════════════════ -->
+    <div class="modal-backdrop hidden" id="modalBackdrop">
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">Reason</h3>
+          <button class="modal-close" id="modalCloseBtn" aria-label="Close">&times;</button>
+        </div>
+        <p class="modal-body" id="modalBody"></p>
+        <textarea class="modal-input" id="modalInput" rows="3" placeholder="Type your reason here…"></textarea>
+        <div class="modal-footer">
+          <button class="ghost-btn" id="modalCancelBtn">Cancel</button>
+          <button class="primary-btn" id="modalConfirmBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ COMPLETE TASK MODAL ════════════════════════════════════ -->
+    <div class="modal-backdrop hidden" id="completeModalBackdrop">
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="completeModalTitle">
+        <div class="modal-header">
+          <h3 class="modal-title" id="completeModalTitle">Complete Task</h3>
+          <button class="modal-close" id="completeModalCloseBtn" aria-label="Close">&times;</button>
+        </div>
+        <form id="completeTaskForm">
+          <p class="modal-body" id="completeModalBody">Provide completion feedback and attach any relevant files.</p>
+          <textarea class="modal-input" id="completeFeedback" name="feedback" rows="3" placeholder="How did it go? (required)" required></textarea>
+          <div style="margin-top: 12px;">
+            <label style="font-size: 0.85rem; color: var(--muted); display: block; margin-bottom: 4px;">Attach file (optional)</label>
+            <input type="file" id="completeFile" name="file" class="modal-input" />
+          </div>
+          <div class="modal-footer" style="margin-top: 20px;">
+            <button class="ghost-btn" type="button" id="completeModalCancelBtn">Cancel</button>
+            <button class="primary-btn" type="submit">Complete Task</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
