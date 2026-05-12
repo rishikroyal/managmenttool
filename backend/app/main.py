@@ -38,10 +38,7 @@ import os
 os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-# Serve frontend directory for production deployment
-frontend_dir = os.path.join(os.path.dirname(__file__), "../../frontend")
-if os.path.exists(frontend_dir):
-    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+# (Mounting moved to the end of the file to ensure API routes take precedence)
 
 
 @app.get("/me")
@@ -70,3 +67,9 @@ def get_my_team(
             for e in employees
         ]
     }
+
+
+# Serve frontend directory last so API routes are checked first
+frontend_dir = os.path.join(os.path.dirname(__file__), "../../frontend")
+if os.path.exists(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
