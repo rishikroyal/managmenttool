@@ -1,5 +1,4 @@
-const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-const API_BASE = isLocal && window.location.port !== '8000' ? "http://127.0.0.1:8000" : "";
+const API_BASE = "https://managmenttool-53ja.onrender.com";
 const tokenKey = "management_tool_token";
 
 // ── Panel refs ────────────────────────────────────────────────────
