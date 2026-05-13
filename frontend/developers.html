@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Hub | API Reference</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --card-bg: #18181b;
+            --border: #27272a;
+            --text-main: #fafafa;
+            --text-dim: #a1a1aa;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --code-bg: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(to bottom right, #fff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .swagger-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .swagger-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        section {
+            margin-bottom: 64px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .endpoint-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .endpoint-card:hover {
+            border-color: var(--accent);
+        }
+
+        .endpoint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .method-path {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .method {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .method.post {
+            background: #10b981;
+            color: #064e3b;
+        }
+
+        .method.get {
+            background: #3b82f6;
+            color: #1e3a8a;
+        }
+
+        .method.patch {
+            background: #f59e0b;
+            color: #78350f;
+        }
+
+        .path {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .desc {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #d1d5db;
+            white-space: pre;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #27272a;
+            border: 1px solid #3f3f46;
+            color: #d1d5db;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #3f3f46;
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 40px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .glow {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 300px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(80px);
+            opacity: 0.3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glow"></div>
+    <div class="container">
+        <header>
+            <h1>Developer Hub</h1>
+            <p class="subtitle">A comprehensive guide to the Project Management & Analytics Platform API. Scalable,
+                Secure, and RESTful.</p>
+            <a href="https://managmenttool-53ja.onrender.com/docs" target="_blank" class="swagger-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                Explore Interactive Swagger Docs
+            </a>
+        </header>
+
+        <section id="auth">
+            <h2>🔐 Authentication</h2>
+
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <div class="method-path">
+                        <span class="method post">POST</span>
+                        <span class="path">/auth/login</span>
+                    </div>
+                </div>
+                <p class="desc">Exchange user credentials for a secure JWT bearer token.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>curl --location 'https://managmenttool-53ja.onrender.com/auth/login' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "email": "admin@gmail.com",
+    "password": "123456"
+}'</code>
+                </div>
+            </div>
+
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <div class="method-path">
+                        <span class="method get">GET</span>
+                        <span class="path">/me</span>
+                    </div>
+                </div>
+                <p class="desc">Retrieve profile information for the currently authenticated user.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>curl --location 'https://managmenttool-53ja.onrender.com/me' \
+--header 'Authorization: Bearer YOUR_TOKEN_HERE'</code>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects">
+            <h2>📁 Projects</h2>
+
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <div class="method-path">
+                        <span class="method post">POST</span>
+                        <span class="path">/projects/</span>
+                    </div>
+                </div>
+                <p class="desc">Initialize a new project. The creator is automatically assigned as the Project Admin.
+                </p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>curl --location 'https://managmenttool-53ja.onrender.com/projects/' \
+--header 'Authorization: Bearer YOUR_TOKEN_HERE' \
+--header 'Content-Type: application/json' \
+--data '{"name":"Team Task Manager","description":"Main assignment project"}'</code>
+                </div>
+            </div>
+        </section>
+
+        <section id="tasks">
+            <h2>✅ Tasks & AI</h2>
+
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <div class="method-path">
+                        <span class="method post">POST</span>
+                        <span class="path">/tasks/</span>
+                    </div>
+                </div>
+                <p class="desc">Create a task and assign it to an employee within a project.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>curl --location 'https://managmenttool-53ja.onrender.com/tasks/' \
+--header 'Authorization: Bearer YOUR_TOKEN_HERE' \
+--header 'Content-Type: application/json' \
+--data '{
+    "title": "Design Dashboard",
+    "description": "Create analytics dashboard UI",
+    "priority": "high",
+    "assigned_to": 1,
+    "project_id": 1
+}'</code>
+                </div>
+            </div>
+
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <div class="method-path">
+                        <span class="method get">GET</span>
+                        <span class="path">/tasks/suggest-assignee</span>
+                    </div>
+                </div>
+                <p class="desc">Utilize Groq Llama 3 AI to analyze workload and suggest the best employee for a task.
+                </p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>curl --location 'https://managmenttool-53ja.onrender.com/tasks/suggest-assignee' \
+--header 'Authorization: Bearer YOUR_TOKEN_HERE' \
+--header 'Content-Type: application/json' \
+--data '{
+    "task_description": "Create a high-performance analytics dashboard"
+}'</code>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Project Management Platform | Built with FastAPI & Vanilla JS</p>
+        </footer>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const code = btn.nextElementSibling.innerText;
+            navigator.clipboard.writeText(code);
+            const originalText = btn.innerText;
+            btn.innerText = "Copied!";
+            btn.style.background = "#10b981";
+            btn.style.color = "#fff";
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = "#27272a";
+            }, 2000);
+        }
+    </script>
+</body>
+
+</html>
