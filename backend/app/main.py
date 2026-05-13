@@ -2,19 +2,24 @@ from fastapi import FastAPI
 from fastapi import Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+import os
 
 from app.database import Base, engine, get_db
-from app.routers import auth, projects, tasks, dashboard, admin
+from app.routers import auth, projects, tasks, dashboard, admin, notifications
 from app.models.user import User
 from app.models.project import Project
 from app.models.member import ProjectMember
 from app.models.task import Task
+from app.models.notification import Notification
 from app.core.dependencies import get_current_user
+from fastapi.staticfiles import StaticFiles
 
+# Create database tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(title="Project Management API")
 
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -23,10 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.routers import auth, projects, tasks, dashboard, admin, notifications
-from app.models.notification import Notification
-from fastapi.staticfiles import StaticFiles
-
+# Include Routers
 app.include_router(dashboard.router)
 app.include_router(auth.router)
 app.include_router(projects.router)
@@ -34,12 +36,11 @@ app.include_router(tasks.router)
 app.include_router(admin.router)
 app.include_router(notifications.router)
 
-import os
+# Ensure uploads directory exists
 os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-# (Mounting moved to the end of the file to ensure API routes take precedence)
-
+# --- API ENDPOINTS ---
 
 @app.get("/me")
 def get_me(current_user=Depends(get_current_user)):
@@ -50,7 +51,6 @@ def get_me(current_user=Depends(get_current_user)):
         "role": current_user.role,
         "manager_id": current_user.manager_id,
     }
-
 
 @app.get("/me/team")
 def get_my_team(
@@ -68,8 +68,19 @@ def get_my_team(
         ]
     }
 
+# --- STATIC FILE SERVING (FRONTEND) ---
+# We serve the frontend directory last so API routes take precedence.
+# This logic checks multiple paths to ensure it works both locally and on Render.
 
-# Serve frontend directory last so API routes are checked first
-frontend_dir = os.path.join(os.path.dirname(__file__), "../../frontend")
+base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+frontend_dir = os.path.join(base_dir, "frontend")
+
+if not os.path.exists(frontend_dir):
+    # Fallback for specific Render "Root Directory" configurations
+    frontend_dir = os.path.join(os.getcwd(), "..", "frontend")
+
 if os.path.exists(frontend_dir):
     app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+    print(f"✅ Frontend mounted successfully from: {frontend_dir}")
+else:
+    print(f"⚠️ Warning: Frontend directory not found at {frontend_dir}")
