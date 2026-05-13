@@ -196,36 +196,47 @@ def update_task_status(
             detail="Task not found"
         )
 
-    if task.assigned_to != current_user.id and task.created_by != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="You can update only your assigned tasks or tasks you created"
-        )
+    # Permission check: Only assignee or creator can update status, but only creator/admin can reassign?
+    # Let's simplify: Only creator or admin can reassign.
+    if payload.assigned_to is not None:
+        if task.created_by != current_user.id and current_user.role != "admin":
+            raise HTTPException(
+                status_code=403,
+                detail="Only the task creator or an admin can re-assign this task"
+            )
+        task.assigned_to = payload.assigned_to
 
-    task.status = payload.status
-    if payload.status == "on_hold":
-        task.on_hold_reason = payload.on_hold_reason
-        
-        # Notify the manager (creator of task)
-        notif = Notification(
-            user_id=task.created_by,
-            message=f"Task '{task.title}' was placed on hold by employee. Reason: {payload.on_hold_reason}"
-        )
-        db.add(notif)
-    else:
-        # If it was previously on_hold and now moved out, we might notify the employee (assignee) if the manager moved it
-        if task.on_hold_reason and current_user.id != task.assigned_to:
+    if payload.status:
+        if task.assigned_to != current_user.id and task.created_by != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="You can update only your assigned tasks or tasks you created"
+            )
+
+        task.status = payload.status
+        if payload.status == "on_hold":
+            task.on_hold_reason = payload.on_hold_reason
+            
+            # Notify the manager (creator of task)
             notif = Notification(
-                user_id=task.assigned_to,
-                message=f"Task '{task.title}' was reassigned or moved to {payload.status} by your manager."
+                user_id=task.created_by,
+                message=f"Task '{task.title}' was placed on hold by employee. Reason: {payload.on_hold_reason}"
             )
             db.add(notif)
-        task.on_hold_reason = None
+        else:
+            # If it was previously on_hold and now moved out, we might notify the employee (assignee) if the manager moved it
+            if task.on_hold_reason and current_user.id != task.assigned_to:
+                notif = Notification(
+                    user_id=task.assigned_to,
+                    message=f"Task '{task.title}' was reassigned or moved to {payload.status} by your manager."
+                )
+                db.add(notif)
+            task.on_hold_reason = None
 
     db.commit()
 
     return {
-        "message": "Task status updated successfully"
+        "message": "Task updated successfully"
     }
 
 
@@ -333,4 +344,4 @@ Respond in this exact JSON structure (no markdown, plain JSON only):
     except json.JSONDecodeError:
         analysis = {"raw": raw}
 
-    return {"task_id": task_id, "analysis": analysis}
+    return {"task_id": task_id, "analysis": analysis}
