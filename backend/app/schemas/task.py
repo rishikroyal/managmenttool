@@ -13,5 +13,6 @@ class TaskCreate(BaseModel):
 
 
 class TaskStatusUpdate(BaseModel):
-    status: str = Field(..., pattern="^(todo|in_progress|done|on_hold)$")
+    status: Optional[str] = Field(None, pattern="^(todo|in_progress|done|on_hold)$")
     on_hold_reason: Optional[str] = None
+    assigned_to: Optional[int] = None
