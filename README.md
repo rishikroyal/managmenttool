@@ -1,4 +1,3 @@
-# managmenttool
 # Project Management & Analytics Platform
 
 
@@ -6,6 +5,24 @@
 This project is a comprehensive, role-based **Project and Task Management Dashboard** built to streamline team collaboration, task assignment, and progress tracking. It features an ultra-modern, professional user interface, AI-powered task assignment suggestions, and real-time interactive analytics.
 
 The platform is designed to be highly secure, scalable, and adheres strictly to RESTful architecture and relational database principles.
+
+---
+
+## 🚀 Deployment Info
+> **Note**: This project was originally slated for Railway, but due to free tier credit expiration, it has been successfully migrated to a high-availability architecture on **Render** and **Neon**.
+
+- **Live Backend**: [https://managmenttool-53ja.onrender.com](https://managmenttool-53ja.onrender.com)
+- **Developer Hub (API Docs)**: [https://managmenttool-53ja.onrender.com/developers.html](https://managmenttool-53ja.onrender.com/developers.html)
+- **Database**: PostgreSQL (Hosted on Neon.tech)
+- **Frontend**: (Deploying to Netlify / Verifying via Backend Static Mount)
+
+---
+
+## 🛡️ Admin Access
+To test the Global Admin Panel and full system features, please use the following pre-configured administrative account:
+
+- **Email**: `admin@gmail.com`
+- **Password**: `123456`
 
 ---
 
@@ -79,3 +96,18 @@ The PostgreSQL schema maintains deep referential integrity using **Foreign Keys*
 
 ---
 
+## 🛠️ How to Run Locally
+
+1. **Start the PostgreSQL Database**: Ensure your local Postgres server is running and the database URI matches the `.env` file.
+2. **Start the Backend**:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   uvicorn app.main:app --reload
+   ```
+3. **Start the Frontend**: Simply serve the `frontend/` directory using any local web server (e.g., Live Server in VS Code, or Python's `http.server`).
+   ```bash
+   cd frontend
+   python -m http.server 8000
+   ```
+4. Open your browser and navigate to the frontend URL!
